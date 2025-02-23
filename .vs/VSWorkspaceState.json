@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.idea",
+    "\\src",
+    "\\src\\main",
+    "\\src\\main\\java",
+    "\\src\\main\\java\\com",
+    "\\src\\main\\java\\com\\mycompany",
+    "\\src\\main\\java\\com\\mycompany\\mavenproject1"
+  ],
+  "SelectedNode": "\\src\\main\\java\\com\\mycompany\\mavenproject1\\SpringBootApp.java",
+  "PreviewInSolutionExplorer": false
+}
