@@ -28,19 +28,22 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String username = (String) headerAccessor.getSessionAttributes().get("username");
-        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId"); // Lấy roomId từ session
+        String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String avtUrl = (String) headerAccessor.getSessionAttributes().get("avtUrl"); // Lấy avtUrl từ session
 
         if (username != null && roomId != null) {
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setSender(username);
+            chatMessage.setAvtUrl(avtUrl); // Đảm bảo avatar URL được thiết lập cho tin nhắn
             chatMessage.setType(MessageType.LEAVE);
-            
+
             // In ra log kiểm tra thông tin
             System.out.println("User " + username + " has disconnected from room " + roomId);
 
             // Gửi tin nhắn đến tất cả các thành viên trong phòng, sử dụng roomId
-            messagingTemplate.convertAndSend("/topic/" + roomId, chatMessage); // Sử dụng roomId thay vì sessionId
+            messagingTemplate.convertAndSend("/topic/" + roomId, chatMessage);
         }
     }
 }
+
 

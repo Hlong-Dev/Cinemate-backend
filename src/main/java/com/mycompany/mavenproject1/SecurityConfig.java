@@ -19,6 +19,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -26,7 +31,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final UserService userService;
- private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -45,29 +50,45 @@ public class SecurityConfig {
         auth.setPasswordEncoder(passwordEncoder());
         return auth;
     }
- 
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
+    // Add CORS Configuration directly inside SecurityConfig
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.addAllowedOriginPattern("https://*.ngrok-free.app");
+        corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://hlong-cinemate.vercel.app"));
+        corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-CSRF-TOKEN"));
+        corsConfig.setExposedHeaders(Arrays.asList("Authorization", "Content-Disposition"));
+        corsConfig.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
+
+        return new CorsFilter(source);
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity http) throws Exception {
         return http
-                .cors(withDefaults())
-    .csrf(csrf -> csrf.disable())
+                .cors(withDefaults()) // Enable CORS with default settings
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**","/image/**", "/", "/oauth/**", "/register", "/error", "/products", "/cart", "/cart/**", "/ws/**").permitAll()
-                        .requestMatchers("/admin/products/edit/**", "/admin/products/add", "/admin/products/delete", "/admin/products","/admin/products/home").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/css/**", "/js/**", "/image/**", "/", "/oauth/**", "/register", "/error", "/products", "/cart", "/cart/**", "/ws/**").permitAll()
+                        .requestMatchers("/admin/products/edit/**", "/admin/products/add", "/admin/products/delete", "/admin/products", "/admin/products/home").hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().permitAll()
-
                 )
                 .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
@@ -97,7 +118,6 @@ public class SecurityConfig {
                         .tokenValiditySeconds(24 * 60 * 60)
                         .userDetailsService(userDetailsService())
                 )
-
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedPage("/403.html")
                 )

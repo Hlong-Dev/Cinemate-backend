@@ -18,7 +18,8 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private String currentVideoUrl;
+    private String currentVideoTitle;
     @Column(name = "name")
     private String name;
 

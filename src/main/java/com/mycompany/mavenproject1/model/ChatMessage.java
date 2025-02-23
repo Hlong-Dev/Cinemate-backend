@@ -33,5 +33,13 @@ public class ChatMessage {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private MessageType type; // Thêm trường này để lưu loại tin nhắn
+    private MessageType type;
+
+    @Column(name = "avt_url")
+    private String avtUrl; // Lưu URL avatar người gửi
+
+    // **Thêm liên kết với tin nhắn được reply**
+    @ManyToOne
+    @JoinColumn(name = "reply_to_id", referencedColumnName = "id", nullable = true)
+    private ChatMessage replyTo;
 }

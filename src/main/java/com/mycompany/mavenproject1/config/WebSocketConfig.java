@@ -12,22 +12,24 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableStompBrokerRelay("/topic", "/queue")
-              .setRelayHost("localhost")
-              .setRelayPort(61613)
-              .setClientLogin("guest")
-              .setClientPasscode("guest")
-              .setSystemHeartbeatReceiveInterval(20000) // 10 giây
-              .setSystemHeartbeatSendInterval(20000);   // 10 giây
         config.setApplicationDestinationPrefixes("/app");
+        config.enableStompBrokerRelay("/topic", "/queue")
+                .setRelayHost("localhost")
+                .setRelayPort(61613)
+                .setClientLogin("guest")
+                .setClientPasscode("guest")
+                .setSystemHeartbeatReceiveInterval(20000) // 20 giây
+                .setSystemHeartbeatSendInterval(20000);   // 20 giây
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // Không dùng SockJS nữa
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:3000") // Cho phép từ cổng 3000
-                .withSockJS()
-                .setWebSocketEnabled(true)
-                .setHeartbeatTime(10000); // 10 giây
+                .setAllowedOrigins(
+                        "https://hlong-cinemate.vercel.app/",
+                        "http://localhost:3000"
+                );
     }
 }
+
